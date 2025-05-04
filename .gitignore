@@ -1,0 +1,34 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+
+# dotenv environment variables file
+.env
+
+# Build directories
+dist/
+build/
+
+# Temporary files
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE specific files
+.idea
+.vscode
+*.swp
+*.swo *.env*
+*.env*
