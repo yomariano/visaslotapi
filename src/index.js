@@ -40,17 +40,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// Setup CORS properly using cors package
-const corsOptions = {
-  origin: process.env.ALLOWED_ORIGINS || 'https://visaslot.xyz',
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-  credentials: true,
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
-  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
-};
-
-app.use(cors(corsOptions));
+// Simple CORS solution - allow all origins
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Setup routes
 app.use('/api/webhook', webhookRoutes);
@@ -79,7 +74,7 @@ db.connect();
 // Start server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
-  console.log(`CORS configured for origin: ${corsOptions.origin}`);
+  console.log(`CORS configured to allow all origins`);
 });
 
 // Handle unhandled promise rejections
