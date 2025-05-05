@@ -41,8 +41,15 @@ app.use((req, res, next) => {
 });
 
 // Simple CORS solution - allow all origins
-app.use(cors());
-
+// With this:
+const corsOptions = {
+  origin: 'https://visaslot.xyz', // Allow only this origin
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Explicitly allow methods
+  allowedHeaders: 'Content-Type,Authorization', // Explicitly allow headers often needed
+  optionsSuccessStatus: 200 // For compatibility
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Ensure OPTIONS requests are handled globally
 // Setup routes
 app.use('/api/webhook', webhookRoutes);
 app.use('/api', userRoutes);
