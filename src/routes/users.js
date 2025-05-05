@@ -335,13 +335,31 @@ router.post('/confirm-payment', async (req, res) => {
 // Add a CORS diagnostic endpoint
 router.get('/cors-test', (req, res) => {
   debug('CORS test endpoint called');
+  
+  // Get all request headers for debugging
+  const requestHeaders = {
+    origin: req.headers.origin,
+    'access-control-request-method': req.headers['access-control-request-method'],
+    'access-control-request-headers': req.headers['access-control-request-headers']
+  };
+
+  // Get all response headers
+  const responseHeaders = res.getHeaders();
+
   res.json({ 
     status: 'ok', 
-    message: 'CORS is properly configured',
-    headers: {
-      'Access-Control-Allow-Origin': res.getHeader('Access-Control-Allow-Origin') || 'not set',
-      'Access-Control-Allow-Methods': res.getHeader('Access-Control-Allow-Methods') || 'not set',
-      'Access-Control-Allow-Headers': res.getHeader('Access-Control-Allow-Headers') || 'not set'
+    message: 'CORS diagnostic information',
+    request: {
+      method: req.method,
+      path: req.path,
+      headers: requestHeaders
+    },
+    response: {
+      headers: responseHeaders
+    },
+    environment: {
+      allowedOrigins: process.env.ALLOWED_ORIGINS,
+      nodeEnv: process.env.NODE_ENV
     }
   });
 });
