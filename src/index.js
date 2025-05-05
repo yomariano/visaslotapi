@@ -40,19 +40,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// Setup CORS - More permissive configuration for debugging
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://visaslot.xyz');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  next();
-});
+// Setup CORS properly using cors package
+const corsOptions = {
+  origin: process.env.ALLOWED_ORIGINS || 'https://visaslot.xyz',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 
 // Setup routes
 app.use('/api/webhook', webhookRoutes);
@@ -81,7 +79,7 @@ db.connect();
 // Start server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
-  console.log(`CORS configured for origin: https://visaslot.xyz`);
+  console.log(`CORS configured for origin: ${corsOptions.origin}`);
 });
 
 // Handle unhandled promise rejections
