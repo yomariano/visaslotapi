@@ -33,42 +33,40 @@ const port = process.env.PORT || 8000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Setup CORS - Configure before routes
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
-  ? process.env.ALLOWED_ORIGINS.split(',')
-  : ['http://localhost:5173', 'https://visaslot.xyz'];
-
-console.log('Configured allowed origins:', allowedOrigins);
-
-// Enable CORS for all routes
-app.use(cors({
-  origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  credentials: true,
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-}));
-
-// Log all requests for debugging
+// Log all incoming requests
 app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.path}`, {
-    origin: req.headers.origin,
-    'user-agent': req.headers['user-agent']
-  });
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
   next();
 });
 
-// Handle OPTIONS requests explicitly
-app.options('*', cors());
+// Setup CORS - More permissive configuration for debugging
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://visaslot.xyz');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
+});
 
-// Setup routes - after CORS configuration
+// Setup routes
 app.use('/api/webhook', webhookRoutes);
 app.use('/api', userRoutes);
 app.use('/api', stripeRoutes);
 
+// Add a basic health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Global error handler
 app.use((err, req, res, next) => {
+  console.error('Error:', err);
   logger.error(`Error: ${err.message}`);
   res.status(err.status || 500).json({
     error: {
@@ -82,14 +80,14 @@ db.connect();
 
 // Start server
 app.listen(port, () => {
-  logger.info(`Server running on port ${port}`);
-  logger.info(`CORS configured for origins: ${allowedOrigins.join(', ')}`);
+  console.log(`Server running on port ${port}`);
+  console.log(`CORS configured for origin: https://visaslot.xyz`);
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Rejection:', err);
   logger.error('Unhandled Rejection:', err);
-  // Don't crash the server
 });
 
 module.exports = app; 
