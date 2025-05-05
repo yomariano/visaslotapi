@@ -9,8 +9,15 @@ const userRoutes = require('./routes/users');
 const webhookRoutes = require('./routes/webhook');
 const stripeRoutes = require('./routes/stripe');
 
-// Load environment variables
-dotenv.config();
+// Load environment variables with debug info
+console.log('Loading environment variables from .env file');
+const result = dotenv.config();
+if (result.error) {
+  console.error('Error loading .env file:', result.error);
+} else {
+  console.log('.env file loaded successfully');
+  console.log('STRIPE_SECRET_KEY is ' + (process.env.STRIPE_SECRET_KEY ? 'defined' : 'undefined'));
+}
 
 // Create logs directory if it doesn't exist
 const logsDir = path.join(__dirname, '../logs');
@@ -35,6 +42,8 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
   : ['http://localhost:5173', 'https://visaslot.xyz'];
 
+console.log('Configured allowed origins:', allowedOrigins);
+
 app.use(cors({
   origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
@@ -44,7 +53,7 @@ app.use(cors({
     if (allowedOrigins.includes('*')) return callback(null, true);
     
     // Check if the origin is in our allowed list
-    if (allowedOrigins.some(allowed => origin.indexOf(allowed) !== -1)) {
+    if (allowedOrigins.indexOf(origin) !== -1) {
       return callback(null, true);
     }
     
@@ -53,7 +62,9 @@ app.use(cors({
     
     return callback(new Error('Not allowed by CORS'));
   },
-  credentials: true
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 // Connect to database

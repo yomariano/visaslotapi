@@ -1,24 +1,52 @@
-# API Deployment Guide
+# Deployment Guide for VisaSlot API
 
-## CORS Configuration
+## CORS Configuration Fix
 
-To fix CORS issues in production, ensure that your environment variables are properly set:
+The CORS issue affecting API communication between the frontend and backend requires the following changes:
 
-1. Make sure your `.env` production file includes the following:
-
+1. Make sure your `.env` file in the API directory has this configuration:
 ```
-# CORS Configuration
-ALLOWED_ORIGINS=http://localhost:5173,https://visaslot.xyz,https://www.visaslot.xyz
-```
-
-2. If you're using a Docker deployment, ensure these environment variables are passed to the container:
-
-```yaml
-environment:
-  - ALLOWED_ORIGINS=http://localhost:5173,https://visaslot.xyz,https://www.visaslot.xyz
+ALLOWED_ORIGINS=https://visaslot.xyz
+PORT=8000
 ```
 
-3. If you're deploying on a platform service (like Heroku, Vercel, etc.), add these environment variables in your project settings.
+2. Restart the API server to apply the CORS changes:
+```bash
+cd /path/to/api
+npm run dev # for development
+# OR
+npm start # for production
+```
+
+3. Test the CORS configuration:
+   - Visit: `https://api.visaslot.xyz/api/cors-test`
+   - You should see a JSON response with CORS headers status
+
+## Common Issues
+
+### CORS Errors
+If you're still seeing CORS errors in the browser console:
+
+1. Ensure you've correctly set ALLOWED_ORIGINS in your .env file
+2. Check that the exact frontend origin matches what's in ALLOWED_ORIGINS (no trailing slashes)
+3. Make sure the NODE_ENV matches your deployment environment (development vs production)
+4. Verify your reverse proxy or hosting service isn't stripping CORS headers
+
+### API Connectivity
+1. Ensure your frontend is correctly using the API_BASE_URL environment variable
+2. Check network connection between the servers
+3. Verify firewall rules allow connections on the API port
+
+## Server Update Procedure
+
+When updating the server configuration:
+
+1. Make required code changes
+2. Test locally if possible
+3. Deploy changes to the server
+4. Restart the API service using your process manager (PM2, systemd, etc.)
+5. Monitor logs for any errors
+6. Verify CORS with the diagnostic endpoint
 
 ## Deployment Checklist
 

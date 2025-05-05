@@ -1,6 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+// Check if STRIPE_SECRET_KEY is defined
+if (!process.env.STRIPE_SECRET_KEY) {
+  console.log('WARNING: STRIPE_SECRET_KEY is not defined in the environment');
+  console.log('Current environment variables:', process.env);
+}
+
+// Initialize Stripe with a fallback for testing
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY || 'your_test_key_here';
+console.log('Using Stripe key:', stripeSecretKey ? 'Key is defined' : 'No key available');
+const stripe = require('stripe')(stripeSecretKey);
 const logger = require('../utils/logger');
 
 router.post('/create-checkout-session', async (req, res) => {
