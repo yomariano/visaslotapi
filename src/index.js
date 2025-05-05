@@ -33,15 +33,24 @@ app.use(express.urlencoded({ extended: true }));
 // Setup CORS
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',')
-  : ['*'];
+  : ['http://localhost:5173', 'https://visaslot.xyz'];
 
 app.use(cors({
   origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin || allowedOrigins.includes('*')) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (!origin) return callback(null, true);
+    
+    // Allow all origins if wildcard is present
+    if (allowedOrigins.includes('*')) return callback(null, true);
+    
+    // Check if the origin is in our allowed list
+    if (allowedOrigins.some(allowed => origin.indexOf(allowed) !== -1)) {
       return callback(null, true);
     }
+    
+    // For debugging in production
+    console.log(`CORS blocked origin: ${origin}, allowed origins: ${allowedOrigins.join(',')}`);
+    
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true
