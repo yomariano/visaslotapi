@@ -41,11 +41,7 @@ app.use((req, res, next) => {
 });
 
 // Simple CORS solution - allow all origins
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors());
 
 // Setup routes
 app.use('/api/webhook', webhookRoutes);
